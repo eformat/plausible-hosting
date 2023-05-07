@@ -39,3 +39,16 @@ Otherwise, run this command to verify all users in the database:
 ```bash
 kubectl -n plausible exec statefulset/plausible-db -- /bin/bash -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB -c "UPDATE users SET email_verified = true;"'
 ```
+
+## 5. OpenShift
+
+If using OpenShift:
+
+```bash
+oc new-project plausible # Create a new namespace for all resources
+oc -n plausible create secret generic plausible-config --from-env-file=plausible-conf.env # Create a configmap from the plausible-conf.env file
+# Please change the Postgres and Clickhouse passwords to something more secure here!
+oc -n plausible create secret generic plausible-db-user --from-literal='username=postgres' --from-literal='password=postgres' # Create the Postgres user
+oc -n plausible create secret generic plausible-events-db-user --from-literal='username=clickhouse' --from-literal='password=clickhouse' # Create the Clickhouse user
+oc -n plausible apply -f ./kubernetes/openshift
+```
